@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<div th:replace="fragments/imports :: imports"></div>
+<head>
+    <meta charset="UTF-8">
+    <title>Orders history</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<style>
+    table {
+        width: 90%;
+        margin: 0 auto;
+        table-layout: fixed;
+    }
+    p, td, span {
+        word-wrap:break-word;
+        word-break:break-all;
+    }
+</style>
+<body>
+<div th:replace="fragments/navbar :: authenticated"></div>
+<br><br>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-2">
+            <div class="list-group" th:each="category : ${categories}">
+                <a th:href="@{'/products/category/'+${category}}" class="list-group-item list-group-item-action list-group-item-dark"><p th:text="${category}"></p></a>
+            </div>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-6">
+            <h2 class="product">Orders list </h2>
+            <table class="table table-dark">
+                <thead>
+                <tr>
+                    <th scope="col">Order id</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td><a th:href="@{'/orders/'+${order.id}}" th:text="${order.id}"> </a></td>
+                    <td><span th:text="${order.date}"></span></td>
+                    <td><span th:text="${'$'+order.total}"></span></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="center">
+                <div th:if="${totalPages > 0}" class="pagination">
+                    <a th:if="${currentPage > 0}" th:href="@{'/products/home/?page='+${currentPage-1}}">&laquo;</a>
+                    <th:block th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:classappend="${(i-1) == currentPage} ? active : inactive" th:text="${i}" th:href="@{'/products/home/?page='+${i-1}}"></a>
+                    </th:block>
+                    <a th:if="${totalPages > (currentPage + 1)}" th:href="@{'/products/home/?page='+${currentPage+1}}">&raquo;</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-2">
+            <div th:replace="fragments/cart :: cart"></div>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

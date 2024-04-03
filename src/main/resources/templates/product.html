@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<div th:replace="fragments/imports :: imports"></div>
+    <head>
+        <link rel="stylesheet" th:href="@{/css/style.css}"/>
+        <meta charset="UTF-8">
+        <title th:text="${product.name}"></title>
+        <style>
+            table {
+                width: 90%;
+                margin: 0 auto;
+                table-layout: fixed;
+            }
+
+            p, h4 {
+                word-wrap:break-word;
+            }
+        </style>
+    </head>
+    <body>
+    <div th:replace="fragments/navbar :: authenticated"></div>
+    <div th:replace="fragments/navbar :: anonymous"></div>
+        <br><br>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-2"></div>
+                <div class="col-1"></div>
+                <div th:if="${product == null}" class="col-6 product">
+                    <h3 class="product center">Product does not exist.</h3>
+                </div>
+                <div th:if="${product != null}" class="col-6 product">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <img class="productImg" th:if="${not #strings.isEmpty(product.imageUrl)}" th:src="${product.imageUrl}" />
+                            <img class="productImg" th:if="${#strings.isEmpty(product.imageUrl)}" th:src="@{/image/no_image.png}" />
+                        </div>
+                        <div class="product col-md-4">
+                            <h4 class="card-title" th:text="${product.name}">Card title</h4><br>
+                            <p class="productTitle">Category:  <a class="productName" th:href="@{'/products/category/'+${product.category}}" th:text="${product.category}">Category</a></p>
+                            <p th:if="${product.mass != null}" class="productTitle" th:text="${'Mass: ' + product.mass + 'oz'}"></p>
+                            <p class="productTitle">Offered by:  <a th:href="@{'/users/'+${product.offeredBy}}" class="userName" th:text="${product.offeredBy}">User</a></p>
+                        </div>
+                        <div class="product col-md-3">
+                            <div class="card w-85" style="text-align: center;">
+                                <div class="bg-dark card-body">
+                                    <h5 class="card-title" th:text="${'$' + product.price}">Price</h5>
+                                    <p class="card-text" style="font-size: small;" th:if="${not product.availableForCart}">Out of stock</p>
+                                    <a th:if="${product.availableForCart}" style="font-size: small;" th:href="@{'/products/addToCart/'+${product.id}}" th:text="${'Add to cart'}" class="btn btn-warning addToCartButton"></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5"></div>
+                        <div class="col-md-7">
+                            <p th:if="${not #strings.isEmpty(product.description)}" class="productTitle">Description</p>
+                            <p class="card-text" th:text="${product.description}"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-1"></div>
+                <div class="col-2">
+                    <div th:replace="fragments/cart :: cart"></div>
+                </div>
+            </div>
+        </div>
+    <div th:replace="fragments/footer :: footer"></div>
+    </body>
+</html>

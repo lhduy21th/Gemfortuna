@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<div th:replace="fragments/imports :: imports"></div>
+<head>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <meta charset="UTF-8">
+    <title th:text="${user.username}"></title>
+    <style>
+        table {
+            width: 90%;
+            margin: 0 auto;
+            table-layout: fixed;
+        }
+        p, h4 {
+            word-wrap:break-word;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/navbar :: authenticated"></div>
+<div th:replace="fragments/navbar :: anonymous"></div>
+<br><br>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div class="row">
+                <div class="product col-6">
+                    <h3 style="font-weight: bold;" th:text="${user.username}"></h3><br>
+                    <p class="productTitle">Name and surname</p>
+                    <p th:text="${user.firstName} + ' ' + ${user.lastName}">firstname lastname</p>
+                    <h5 class="productTitle">About me</h5>
+                    <p th:text="${user.aboutMe}"></p>
+                    <a th:if="${username == user.username}" th:href="@{'/users/edit/'+${user.username}}">Edit profile</a>
+                </div>
+                <div class="col-md-2"></div>
+                <div class="product col-2">
+                    <div class="card" style="width: 16rem;">
+                        <img class="card-img-top" th:if="${not #strings.isEmpty(user.imageUrl)}" th:src="${user.imageUrl}"/>
+                        <img class="card-img-top" th:if="${#strings.isEmpty(user.imageUrl)}" th:src="@{/image/user_picture.png}" />
+                        <div class="bg-dark card-body" style="text-align: center;">
+                            <h5 class="card-title" th:text="${user.username}">Card title</h5>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <br><br><br>
+                <div th:if="${totalPages == 0}">
+                    <h4 class="product">No products in offer.</h4>
+                </div>
+                <div th:if="${totalPages != 0}">
+                    <h4 class="product">User's products</h4>
+                    <table class="table table-dark">
+                        <thead>
+                        <tr>
+                            <th scope="col">Sort by</th>
+                            <th scope="col"><a th:href="@{'/users/' + ${user.username} + '?sortBy=name'}">Name</a></th>
+                            <th scope="col"><a th:href="@{'/users/' + ${user.username} + '?sortBy=price'}">Price</a></th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product : ${products}">
+                            <div th:if="${product.available}">
+                                <td><img class="myImg" th:src="${product.imageUrl}" alt="No image"></img></td>
+                                <td><a class="productName" th:href="@{'/products/'+${product.id}}" th:text="${product.name}"> </a></td>
+                                <td><span th:text="${'$'+product.price}"> </span></td>
+                                <td th:if="${not (product.quantity == 0)}">
+                                    <a class="addToCartText" th:href="@{'~/products/addToCart/'+${product.id}}">Add to cart</a>
+                                </td>
+                                <td th:if="${product.quantity == 0}">
+                                    <span class="outOfStock">Out of stock</span>
+                                </td>
+
+                            </div>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="center">
+                        <div th:if="${totalPages > 0}" class="pagination">
+                            <a th:if="${currentPage > 0}" th:href="@{'/products/home/?page='+${currentPage-1}}">&laquo;</a>
+                            <th:block th:each="i: ${#numbers.sequence(1, totalPages)}">
+                                <a th:classappend="${(i-1) == currentPage} ? active : inactive" th:text="${i}" th:href="@{'/products/home/?page='+${i-1}}"></a>
+                            </th:block>
+                            <a th:if="${totalPages > (currentPage + 1)}" th:href="@{'/products/home/?page='+${currentPage+1}}">&raquo;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-2">
+            <div th:replace="fragments/cart :: cart"></div>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

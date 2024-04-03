@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<div th:replace="fragments/imports :: imports"></div>
+   <head>
+        <link rel="stylesheet" th:href="@{/css/style.css}"/>
+        <meta charset="UTF-8">
+        <title>GEMS FORTUNA</title>
+    </head>
+    <style>
+        table {
+            width: 90%;
+            margin: 0 auto;
+            table-layout: fixed;
+        }
+        p, td, span {
+            word-wrap:break-word;
+        }
+    </style>
+    <body>
+    <div th:replace="fragments/navbar :: authenticated"></div>
+    <div th:replace="fragments/navbar :: anonymous"></div>
+        <br><br>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-2">
+                    <div class="list-group">
+                        <a th:href="@{/products/home/}" th:text="ALL" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${currentCategory == null} ? activeCategory : inactive"></a>
+                        <div th:each="category : ${categories}">
+                            <a th:href="@{'/products/category/'+${category}}" th:text="${category.category}"
+                               class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${#strings.equals(category, currentCategory)} ? activeCategory : inactive"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-1"></div>
+                <div class="col-6">
+                <form th:action="@{'/products/home/'}" method="get">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Search for anything" name="search" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-warning" type="submit" id="basic-addon2">Search</button>
+                        </div>
+                    </div>
+                </form>
+                <div th:if="${not (message == null)}" class="alert alert-danger" role="alert">
+                    <p th:text="${message}"></p>
+                </div>
+                <div th:if="${totalPages == 0}">
+                    <br><h4 class="product">No matches found, try different search or category.</h4><br>
+                </div>
+                <table th:if="${totalPages != 0}" class="table table-dark">
+                    <thead>
+                    <tr>
+                        <th scope="col">Sort by</th>
+                        <th style="width: 20%;" scope="col"><a class="tableHeading" th:href="@{/products/home/?sortBy=name}">Name</a></th>
+                        <th style="width: 10%;" scope="col"><a class="tableHeading" th:href="@{/products/home/?sortBy=price}">Price</a></th>
+                        <th style="width: 20%;" scope="col"><a class="tableHeading" th:href="@{/products/home/?sortBy=offeredBy}">Offered by</a></th>
+                        <th scope="col"></th>
+                        <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_SELLER')">
+                            <th scope="col"></th><th scope="col"></th>
+                        </div>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${products}">
+                        <div th:if="${product.available}">
+                            <td>
+                                <img class="myImg" th:if="${not #strings.isEmpty(product.imageUrl)}" th:src="${product.imageUrl}" />
+                                <img class="myImg" th:if="${#strings.isEmpty(product.imageUrl)}" th:src="@{/image/no_image.png}" />
+                            </td>
+                            <td style="width: 20%;"><a class="productName" th:href="@{'/products/'+${product.id}}" th:text="${product.name}"> </a></td>
+                            <td style="width: 10%;"><span th:text="${'$'+product.price}"> </span></td>
+                            <td style="width: 20%;"><a class="userName" th:text="${product.offeredBy}" th:href="@{'/users/'+${product.offeredBy}}"> </a></td>
+                            <td th:if="${product.availableForCart}" sec:authorize="hasRole('ROLE_CUSTOMER')">
+                                <a class="addToCartText" th:href="@{'~/products/addToCart/'+${product.id}}">Add to cart</a>
+                            </td>
+                            <td class="outOfStock" th:if="${not product.availableForCart}">
+                                <span>Out of stock</span>
+                            </td>
+                            <div th:if="${#strings.equals(product.offeredBy, username)}" sec:authorize="hasRole('ROLE_SELLER')">
+                                <td>
+                                    <a style="text-decoration:none;" th:href="@{'/products/edit/'+${product.id}}">Edit</a>
+                                </td>
+                            </div>
+                            <div th:if="${#strings.equals(product.offeredBy, username)}" sec:authorize="hasRole('ROLE_SELLER')">
+                                <td>
+                                    <a class="delete" th:href="@{'/products/delete/'+${product.id}}">Delete</a>
+                                </td>
+                            </div>
+                            <div sec:authorize="hasRole('ROLE_ADMIN')">
+                                <td>
+                                    <a style="text-decoration:none;" th:href="@{'/products/edit/'+${product.id}}">Edit</a>
+                                </td>
+                            </div>
+                            <div sec:authorize="hasRole('ROLE_ADMIN')">
+                                <td>
+                                    <a class="delete" th:href="@{'/products/delete/'+${product.id}}">Delete</a>
+                                </td>
+                            </div>
+                        </div>
+                    </tr>
+                    </tbody>
+                </table>
+                <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_SELLER')">
+                    <input type="button" value="Add new" onclick="window.location.href='/products/add';return false;"
+                           class="btn btn-success">
+                </div>
+                <div class="center">
+                    <div th:if="${totalPages > 0}" class="pagination">
+                        <a th:if="${currentPage > 0}" th:href="@{'/products/home/?page='+${currentPage-1}}">&laquo;</a>
+                        <th:block th:each="i: ${#numbers.sequence(1, totalPages)}">
+                            <a th:classappend="${(i-1) == currentPage} ? active : inactive" th:text="${i}" th:href="@{'/products/home/?page='+${i-1}}"></a>
+                        </th:block>
+                        <a th:if="${totalPages > (currentPage + 1)}" th:href="@{'/products/home/?page='+${currentPage+1}}">&raquo;</a>
+                    </div>
+                </div>
+                </div>
+                <div class="col-1"></div>
+                <div class="col-2">
+                    <div th:replace="fragments/cart :: cart"></div>
+                </div>
+            </div>
+        </div>
+    <div th:replace="fragments/footer :: footer"></div>
+    </body>
+</html>

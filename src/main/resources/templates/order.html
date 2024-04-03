@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<div th:replace="fragments/imports :: imports"></div>
+<head>
+    <meta charset="UTF-8">
+    <title>Your order</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<style>
+    table {
+        width: 90%;
+        margin: 0 auto;
+        table-layout: fixed;
+    }
+
+    .productTitle {
+        color: darkgrey;
+    }
+    p, td, span {
+        word-wrap:break-word;
+    }
+
+
+</style>
+<body>
+<div th:replace="fragments/navbar :: authenticated"></div>
+<br><br>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-2">
+            <div class="list-group" th:each="category : ${categories}">
+                <a th:href="@{'/products/category/'+${category}}" class="list-group-item list-group-item-action list-group-item-dark"><p th:text="${category}"></p></a>
+            </div>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-6">
+            <h2 class="product" style="text-align: center;">Order details</h2>
+            <p class="productTitle">Order date</p>
+            <p class="product" th:text="${order.date}"></p>
+            <br>
+            <h4 class="product">Products list</h4>
+            <table class="table table-dark">
+                <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Price</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}">
+                        <td>
+                            <img class="myImg" th:if="${not #strings.isEmpty(product.imageUrl)}" th:src="${product.imageUrl}" />
+                            <img class="myImg" th:if="${#strings.isEmpty(product.imageUrl)}" th:src="@{/image/no_image.png}" />
+                        </td>
+                        <td><a th:href="@{'/products/'+${product.id}}" th:text="${product.name}"> </a></td>
+                        <td><span th:text="${product.quantity}"> </span></td>
+                        <td><a th:text="${product.offeredBy}" th:href="@{'/users/'+${product.offeredBy}}"> </a></td>
+                        <td><span th:text="${'$'+product.price}"> </span></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td><td></td>
+                    <td>Total</td>
+                    <td th:text="${'$'+order.total}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-2">
+            <div th:replace="fragments/cart :: cart"></div>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
